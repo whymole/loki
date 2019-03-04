@@ -55,7 +55,7 @@ def od_pos():
 	else:
 		return False
 
-def spade():
+def diamond():
 	for n in [3,5]:
 		if bd[1] == bd[n]:
 			return n - 3
@@ -110,7 +110,7 @@ def comp(x,lv):
 				refresh()
 				return
 
-			p = spade()
+			p = diamond()
 			if p:
 				if p + 1 in pos:
 					bd[p] = x
