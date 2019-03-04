@@ -6,6 +6,8 @@ from termcolor import colored
 
 #global value count to keep track of no. of moves
 count = 9
+x = 'x'
+y = 'o'
 
 # Draw board
 def draw_bd():
@@ -33,7 +35,6 @@ def user(name,x):
 	if p in pos:
 		pos.remove(p)
 		bd[p-1]=x
-	
 	else:
 		print("that position is filled or out of range")
 		user(name,x)
@@ -42,61 +43,90 @@ def user(name,x):
 def d_pos():
 	return [num for num in pos if num % 2 !=0]
 
+def o_pos():
+	return [num for num in pos if num % 2 == 0]
+
+def od_pos():
+	
+	if x == bd[0] and x == bd[8]:
+		return True
+	elif x == bd[2] and x == bd[6]:
+		return True
+	else:
+		return False
+
+def spade():
+	for n in [3,5]:
+		if bd[1] == bd[n]:
+			return n - 3
+		if bd[7] == bd[n]:
+			return n + 3
+	return None
+
 # computer chosen postion using random list generation-easy level play, twice occurence position for medium, twice occurence and 
 # double attack positions for impossible. 
 def comp(x,lv):
 	global count
-	count -= 1
+	
 	if lv == 'e':
+		count -= 1
 		if pos:
 			p=choice(pos)
 			bd[p-1]=x
 			pos.remove(p)
 		
 	elif lv == 'm':
+		count -= 1
 		if check('c',x):
 			refresh()
 			return
+
 		else:
 			p=choice(pos)
 			bd[p-1]=x
 			pos.remove(p)
 		
 	elif lv == 'i':
+		
+		count -= 1		
 		if check('c',x):
 			refresh()
 			return
-		else:
+
+		elif count == 8:
+			p = choice([0,2,6,8])
+			bd[p] = x
+			pos.remove(p+1)
+			
+		elif od_pos() and count == 5 and 5 not in pos:
+			p=choice(o_pos())
+			bd[p-1]=x
+			pos.remove(p)
+			
+		elif d_pos():
 			if 5 in d_pos():
 				bd[4]=x
 				pos.remove(5)
-			elif d_pos():
-				if bd[1] == bd[3]:
-					if 0 in pos:
-						bd [0] = x
-						pos.remove(1)
-				elif bd[1] == bd[5]:
-					if 2 in pos:
-						bd [2] = x
-						pos.remove(3)
-				elif bd[7] == bd[5]:
-					if 8 in pos:
-						bd [8] = x
-						pos.remove(9)
-				elif bd[7] == bd[3]:
-					if 6 in pos:
-						bd [6] = x
-						pos.remove(7)
-				else:
-					p=choice(d_pos())
-					bd[p-1]=x
-					pos.remove(p)
-			else:
-				p=choice(pos)
-				bd[p-1]=x
-				pos.remove(p)
-	refresh()	
+				refresh()
+				return
 
+			p = spade()
+			if p:
+				if p + 1 in pos:
+					bd[p] = x
+					pos.remove(p + 1)
+					refresh()
+					return
+			
+			p=choice(d_pos())
+			bd[p-1] = x
+			pos.remove(p)
+		else:
+			p=choice(pos)
+			bd[p-1] = x
+			pos.remove(p)
+	refresh()
+	
 # verifying the equality of the slices and checking for twice occurence with status boolean that leads to winning position if any in 
 # later slices
 def ver(lis,st,f,x):
@@ -142,7 +172,8 @@ def check(f,x):
 		return x
 	elif ver(bd[2:7:2],st,f,x):
 		return x
-	if (len(pos)>count + 1) and f != 'w': 
+	if (len(pos) > count+1) and f != 'w': 
+#			print(f'{pos}')
 			n = pos.pop() 
 			bd[n-1] = x
 			pos.remove(n)
@@ -155,12 +186,12 @@ def winner(x,name):
 		if x=="x":
 			#refresh()
 			print(f'{name} with {x} has won')
-			
+			print(f'{pos}')
 			return True
 		elif x=="o":
 			#refresh()
 			print(f'{name} with {x} has won')
-		
+			print(f'{pos}')
 			return True
 	if not pos:
 		refresh()
@@ -198,10 +229,11 @@ def menu(lv):
 		menu(lv)
 
 # working on the chosen option
-def game(ch):	
+def game(ch):
+	global x,y	
 	while pos:
 		refresh()
-		x , y = 'x' , 'o'
+		
 		if ch==1:
 			user('player',x)
 			if winner(check('w',x),'player'):
@@ -218,13 +250,12 @@ def game(ch):
 			if winner(check('w',y),'computer'):
 				break
 		elif ch==3:
-			x , y = 'o' , 'x'
 			sleep(2)
-			comp(y,lv)
-			if winner(check('w',y),'computer'):
+			comp(x,lv)
+			if winner(check('w',x),'computer'):
 				break
-			user('player',x)
-			if winner(check('w',x),'player'):
+			user('player',y)
+			if winner(check('w',y),'player'):
 				break
 		else:
 			sleep(2)
