@@ -40,21 +40,23 @@ def user(name,x):
 		user(name,x)
 	refresh()
 
+# returns the diagonal position
 def d_pos():
 	return [num for num in pos if num % 2 !=0]
 
+# returns the non corner position
 def o_pos():
 	return [num for num in pos if num % 2 == 0]
 
+# checks the equivalence of opp diagonal position
 def od_pos():
-	
 	if x == bd[0] and x == bd[8]:
 		return True
 	elif x == bd[2] and x == bd[6]:
 		return True
 	else:
 		return False
-
+# checks the equivalence of non corner positions
 def diamond():
 	for n in [3,5]:
 		if bd[1] == bd[n]:
@@ -67,7 +69,7 @@ def diamond():
 # double attack positions for impossible. 
 def comp(x,lv):
 	global count
-	
+	op_dia = { 0 : 8, 2 : 6, 6 : 2, 8 : 0 }
 	if lv == 'e':
 		count -= 1
 		if pos:
@@ -80,18 +82,15 @@ def comp(x,lv):
 		if check('c',x):
 			refresh()
 			return
-
 		else:
 			p=choice(pos)
 			bd[p-1]=x
 			pos.remove(p)
 		
 	elif lv == 'i':
-		
 		count -= 1		
 		if check('c',x):
 			refresh()
-			return
 
 		elif count == 8:
 			p = choice([0,2,6,8])
@@ -102,7 +101,32 @@ def comp(x,lv):
 			p=choice(o_pos())
 			bd[p-1]=x
 			pos.remove(p)
-			
+
+		elif count == 4 and 5 in pos:
+			for p in d_pos():
+				if p != 5:
+					bd[p-1] = x
+					pos.remove(p)
+
+		elif count == 6:
+			for p in [0,7]:
+				if not bd[p] == y:
+					break
+				p = 0
+			for q in [0,2,6,8]:
+				if bd[q] == x:
+					break
+			if 5 in pos:
+				if p:
+					p = {0:2,2:0,6:8,8:6}[q]
+				
+				else:
+					p = {0:6,2:8,6:2,8:2}[q]
+			else:
+				p = op_dia[q]
+			bd[p] = x
+			pos.remove(p+1)	
+
 		elif d_pos():
 			if 5 in d_pos():
 				bd[4]=x
@@ -111,7 +135,7 @@ def comp(x,lv):
 				return
 
 			p = diamond()
-			if p:
+			if p or p == 0:
 				if p + 1 in pos:
 					bd[p] = x
 					pos.remove(p + 1)
@@ -121,6 +145,7 @@ def comp(x,lv):
 			p=choice(d_pos())
 			bd[p-1] = x
 			pos.remove(p)
+
 		else:
 			p=choice(pos)
 			bd[p-1] = x
@@ -269,7 +294,6 @@ def game(ch):
 
 # initialisation and starting point	
 while True:
-
 	bd = list(range(1,10))
 	pos = list(range(1,10))
 	count = 9
