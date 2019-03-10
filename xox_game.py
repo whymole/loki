@@ -103,25 +103,33 @@ def comp(x,lv):
 			pos.remove(p)
 
 		elif count == 4 and 5 in pos:
-			for p in d_pos():
-				if p != 5:
-					bd[p-1] = x
-					pos.remove(p)
+			if len(d_pos()) == 2:
+				for p in d_pos():
+					if p != 5:
+						bd[p-1] = x
+						pos.remove(p)
+			else:
+				p = diamond()
+				p = op_dia[p]
+				bd[p] = x
+				pos.remove(p+1)
 
 		elif count == 6:
-			for p in [0,7]:
-				if not bd[p] == y:
-					break
-				p = 0
 			for q in [0,2,6,8]:
 				if bd[q] == x:
 					break
 			if 5 in pos:
-				if p:
-					p = {0:2,2:0,6:8,8:6}[q]
-				
-				else:
-					p = {0:6,2:8,6:2,8:2}[q]
+				for p in range(9):
+					if  bd[p] == y:
+						if p in [1,7]:
+							p = {0:6,2:8,6:2,8:2}[q]
+						elif p in [3,5]:
+							p = {0:2,2:0,6:8,8:6}[q]
+						elif op_dia[q] == p:
+							p = {0:2,2:0,6:8,8:6}[q]
+						else:
+							p = op_dia[p]
+						break
 			else:
 				p = op_dia[q]
 			bd[p] = x
